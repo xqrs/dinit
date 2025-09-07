@@ -773,7 +773,15 @@ int dinit_main(int argc, char **argv)
             cmd_arg = "-h";
         }
         else if (shutdown_type == shutdown_type_t::REBOOT) {
+            int fd;
+            char c;
+            size_t len;
             cmd_arg = "-r";
+            fd = open("/sys/kernel/kexec_loaded", O_RDONLY);
+            if (fd != -1) {
+                len = read(fd, &c, sizeof(c));
+                if (len == 1 && c == '1') cmd_arg = "-k";
+            }
         }
         else if (shutdown_type == shutdown_type_t::KEXEC) {
             cmd_arg = "-k";
